@@ -18,10 +18,7 @@ class Product:
         TODO Верните True если количество продукта больше или равно запрашиваемому
             и False в обратном случае
         """
-        if self.quantity >= quantity:
-            return True
-        else:
-            return False
+        return self.quantity >= quantity
 
     def buy(self, quantity):
         """
@@ -30,7 +27,7 @@ class Product:
             Если продуктов не хватает, то выбросите исключение ValueError
         """
         if not self.check_quantity(quantity):
-            return ValueError
+            raise ValueError
         else:
             self.quantity -= quantity
 
@@ -57,10 +54,9 @@ class Cart:
         Если продукт уже есть в корзине, то увеличиваем количество
         """
         if product in self.products:
-            product.quantity += 1
+            self.products[product] += quantity
         else:
-            self.products.update()
-        raise NotImplementedError
+            self.products[product] = quantity
 
     def remove_product(self, product: Product, quantity=None):
         """
@@ -68,13 +64,20 @@ class Cart:
         Если quantity не передан, то удаляется вся позиция
         Если quantity больше, чем количество продуктов в позиции, то удаляется вся позиция
         """
-        raise NotImplementedError
+        if quantity is None or quantity >= self.products[product]:
+            self.products.pop(product)
+        else:
+            self.products[product] -= quantity
 
     def clear(self):
-        raise NotImplementedError
+        self.products.clear()
 
     def get_total_price(self) -> float:
-        raise NotImplementedError
+        final_price = 0
+
+        for product in self.products:
+            final_price += (product.price * self.products[product])
+        return final_price
 
     def buy(self):
         """
@@ -82,4 +85,8 @@ class Cart:
         Учтите, что товаров может не хватать на складе.
         В этом случае нужно выбросить исключение ValueError
         """
-        raise NotImplementedError
+        for product in self.products:
+            if product.quantity < self.products[product]:
+                raise ValueError
+            else:
+                product.quantity -= self.products[product]
